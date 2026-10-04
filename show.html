@@ -83,7 +83,7 @@
 
   <div class="hint">
     <em>Point your camera here</em>
-    <span id="hintSub">Card, CV &amp; contact in one tap</span>
+    <span id="hintSub"></span>
   </div>
 
   <div class="spacer"></div>
@@ -108,7 +108,7 @@
   $("sub").textContent = [P.nameZh, [P.role, P.affiliation].filter(Boolean).join(" · ")].filter(Boolean).join("  ");
 
   const targets = {
-    card:  { url: P.cardUrl, hint: "Card, CV & contact in one tap" },
+    card:  { url: P.cardUrl, hint: P.cv ? "Card, CV & contact in one tap" : "Card & contact in one tap" },
     work: P.projects?.[0] && { url: P.cardUrl + "#" + P.projects[0].id, hint: P.projects[0].title + " · video" },
   };
   if (P.paper) targets.paper = { url: P.cardUrl + "#" + P.paper.id, hint: "Our ISMAR paper · " + (P.paper.shortTitle || P.paper.venue) };
@@ -117,6 +117,7 @@
   const live = tabs.filter(b => targets[b.dataset.tab]);
   $("tabs").style.setProperty("--n", live.length);
   if (live.length < 2) $("tabs").dataset.single = "";
+  $("hintSub").textContent = targets.card.hint;
 
   const qr = new QRCodeStyling({
     width: 600, height: 600, type: "canvas", data: P.cardUrl, margin: 0,

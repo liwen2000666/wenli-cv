@@ -24,9 +24,8 @@ window.PROFILE = {
   ],
 
   education: [
-    { school: "University of Bologna",  degree: "PhD, Year 2",                                  when: "Now" },
-    { school: "Donghua University",     degree: "M.Eng. Fashion Design & Engineering",          when: "2022 – 2025" },
-    { school: "Donghua University",     degree: "B.Eng. Fashion Design & Engineering",          when: "2018 – 2022" },
+    { school: "University of Bologna", degree: "PhD, Year 2" },
+    { school: "Donghua University",    degree: "B.Eng. & M.Eng., Fashion Design & Engineering", when: "2018–2025" },
   ],
   honors: ["National Scholarship", "Shanghai Outstanding Graduate"],
 
@@ -39,15 +38,14 @@ window.PROFILE = {
     summary: "People learn a procedural skill in a digital-twin mixed reality environment, then carry it out in the real world. We test whether the same scent in both settings acts as a memory anchor that helps the skill transfer.",
     authors: "Lai, Zhao, Li, Hajahmadi, Cascarano & Marfia",
     venue: "IEEE TVCG · ISMAR 2026",
-    url: "https://alettazhao.github.io/work/#olfactory-cues-in-mr",
-    linkText: "Watch the video →",
+    video: "files/olfactory-mr.mp4",
+    poster: "files/olfactory-mr-poster.jpg",
   },
 
   // 过往项目。第一个会作为展示页「My work」二维码的目标。
   projects: [
     {
       id: "wardrobe",
-      label: "Past project",
       title: "Personal Virtual Wardrobe",
       summary: "An AI fashion assistant for managing your clothes and choosing outfits.",
       points: [
