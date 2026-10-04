@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Wen Li · ISMAR 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  .head { display: flex; gap: 16px; align-items: center; margin: 22px 0 16px; }
+  .bio { font-size: 17px; line-height: 1.55; }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 22px; }
+  .tags span { padding: 4px 11px; border-radius: 999px; background: var(--chip); font-size: 13px; color: var(--muted); }
+
+  .btn {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 18px 20px; border-radius: 16px; margin-bottom: 12px;
+    background: var(--surface); border: 1px solid var(--line);
+    transition: transform .12s ease;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn b { display: block; font-weight: 600; font-size: 17px; }
+  .btn small { color: var(--muted); font-size: 13.5px; }
+  .btn svg { width: 22px; height: 22px; flex: none; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; }
+  .btn.primary small { color: inherit; opacity: .8; }
+
+  .panel {
+    margin: 18px 0 12px; padding: 22px 20px; border-radius: 16px;
+    background: var(--surface); border: 1px solid var(--line);
+  }
+  .label { font-size: 12.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .panel h2 { font: 600 22px/1.25 var(--serif); margin: 10px 0 6px; }
+  .panel .lede { color: var(--muted); font-size: 15px; }
+
+  #paper h2 { font-size: 20px; }
+  .panel .meta { margin-top: 12px; font-size: 13.5px; color: var(--muted); }
+  .panel .meta b { color: var(--ink); font-weight: 600; }
+  .more { display: inline-block; margin-top: 14px; font-weight: 500; border-bottom: 1.5px solid currentColor; }
+
+  .video { position: relative; margin: 16px -20px; aspect-ratio: 16 / 9; background: #000; }
+  .video video { width: 100%; height: 100%; display: block; object-fit: cover; }
+  .points { padding-left: 18px; font-size: 15px; display: grid; gap: 8px; }
+  .points li::marker { color: var(--accent); }
+  .panel .tags { margin: 16px 0 0; }
+
+  .rows { list-style: none; padding: 0; margin-top: 12px; }
+  .rows li { padding: 12px 0; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 12px; }
+  .rows li:first-child { border-top: 0; padding-top: 4px; }
+  .rows b { font-weight: 600; display: block; font-size: 15.5px; }
+  .rows small { color: var(--muted); font-size: 13.5px; }
+  .rows time { color: var(--muted); font-size: 13.5px; white-space: nowrap; }
+  .honors { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+  .honors span { padding: 5px 11px; border-radius: 999px; font-size: 13px; background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent); font-weight: 500; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 6px; }
+  .grid a {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 15px 16px; border-radius: 14px; background: var(--surface);
+    border: 1px solid var(--line); font-weight: 500; font-size: 15px;
+  }
+  .grid a::after { content: "↗"; color: var(--muted); }
+  .foot { text-align: center; color: var(--muted); font-size: 13px; margin-top: 30px; }
+  [hidden] { display: none !important; }
+
+  /* entrance */
+  .wrap > * { animation: rise .5s ease both; }
+  .wrap > *:nth-child(2) { animation-delay: .05s; } .wrap > *:nth-child(3) { animation-delay: .1s; }
+  .wrap > *:nth-child(4) { animation-delay: .15s; } .wrap > *:nth-child(n+5) { animation-delay: .2s; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+  @media (prefers-reduced-motion: reduce) { .wrap > * { animation: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <div class="eyebrow" id="eyebrow"></div>
+
+  <div class="head">
+    <div class="avatar" id="avatar"></div>
+    <div>
+      <h1 id="name"></h1>
+      <div class="sub" id="nameZh"></div>
+      <div class="sub" id="role"></div>
+    </div>
+  </div>
+
+  <p class="bio" id="bio"></p>
+  <div class="tags" id="interests"></div>
+
+  <a class="btn primary" id="save" href="#">
+    <span><b>Save my contact</b><small>Adds me to your phone</small></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+  </a>
+  <a class="btn" id="cv" target="_blank" rel="noopener">
+    <span><b>CV</b><small>PDF</small></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M14 3H6v18h12V7z"/><path d="M14 3v4h4"/></svg>
+  </a>
+  <a class="btn" id="home" target="_blank" rel="noopener">
+    <span><b id="homeLabel"></b><small id="homeHost"></small></span>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+  </a>
+
+  <section class="panel" id="paper" hidden>
+    <div class="label" id="pLabel"></div>
+    <h2 id="pTitle"></h2>
+    <p class="lede" id="pSummary"></p>
+    <p class="meta" id="pMeta"></p>
+    <a class="more" id="pLink" target="_blank" rel="noopener"></a>
+  </section>
+
+  <div id="projects"></div>
+
+  <section class="panel" id="eduPanel">
+    <div class="label">Education</div>
+    <ul class="rows" id="edu"></ul>
+    <div class="honors" id="honors"></div>
+  </section>
+
+  <section class="panel" id="resPanel">
+    <div class="label">Research</div>
+    <ul class="rows" id="research"></ul>
+  </section>
+
+  <nav class="grid" id="links"></nav>
+
+  <p class="foot" id="via">You got here by scanning my code. Hi 👋</p>
+</main>
+
+<script src="config.js"></script>
+<script>
+  const P = window.PROFILE, $ = id => document.getElementById(id);
+  const el = (tag, props = {}, ...kids) => { const e = Object.assign(document.createElement(tag), props); e.append(...kids); return e; };
+
+  document.title = `${P.name} · ${P.event.split("·")[0].trim()}`;
+  $("eyebrow").textContent = `Nice to meet you · ${P.event}`;
+  $("name").textContent = P.name;
+  $("nameZh").textContent = P.nameZh || "";
+  $("role").textContent = [P.role, P.affiliation].filter(Boolean).join(" · ");
+  $("bio").textContent = P.bio;
+  for (const t of P.interests || []) $("interests").append(el("span", { textContent: t }));
+
+  // avatar, falls back to initials
+  const initials = P.name.split(/\s+/).map(s => s[0]).join("").slice(0, 2);
+  const av = $("avatar");
+  if (P.photo) {
+    const img = new Image();
+    img.className = "avatar"; img.alt = P.name; img.src = P.photo;
+    img.onload = () => av.replaceWith(img);
+    img.onerror = () => (av.textContent = initials);
+  } else av.textContent = initials;
+
+  // CV / homepage
+  if (P.cv) $("cv").href = P.cv; else $("cv").hidden = true;
+  if (P.homepage?.url) {
+    $("home").href = P.homepage.url;
+    $("homeLabel").textContent = P.homepage.label || "Homepage";
+    $("homeHost").textContent = new URL(P.homepage.url).host.replace(/^www\./, "");
+  } else $("home").hidden = true;
+
+  // ISMAR paper; my own surname is bolded in the author list
+  if (P.paper) {
+    const p = P.paper;
+    $("pLabel").textContent = p.label;
+    $("pTitle").textContent = p.title;
+    $("pSummary").textContent = p.summary || "";
+    const me = P.name.split(" ").pop();
+    $("pMeta").append(...p.authors.split(/(\b\w+\b)/).map(s => s === me ? el("b", { textContent: s }) : s), p.venue ? " · " + p.venue : "");
+    if (p.url) { $("pLink").href = p.url; $("pLink").textContent = p.linkText || "Read more →"; } else $("pLink").hidden = true;
+    $("paper").hidden = false;
+  }
+
+  // projects (video + what it does)
+  for (const p of P.projects || []) {
+    const sec = el("section", { className: "panel", id: p.id },
+      el("div", { className: "label", textContent: p.label || "Project" }),
+      el("h2", { textContent: p.title }),
+      el("p", { className: "lede", textContent: p.summary }));
+    if (p.video) {
+      const v = el("video", { src: p.video, poster: p.poster || "", controls: true, playsInline: true, preload: "none" });
+      sec.append(el("div", { className: "video" }, v));
+    }
+    if (p.points?.length) sec.append(el("ul", { className: "points" }, ...p.points.map(t => el("li", { textContent: t }))));
+    if (p.tags?.length) sec.append(el("div", { className: "tags" }, ...p.tags.map(t => el("span", { textContent: t }))));
+    $("projects").append(sec);
+  }
+
+  // education + research
+  const rows = (list, a, b, c) => list.map(x => el("li", {}, el("div", {}, el("b", { textContent: x[a] }), el("small", { textContent: x[b] || "" })), el("time", { textContent: (c && x[c]) || "" })));
+  if (P.education?.length) $("edu").append(...rows(P.education, "school", "degree", "when")); else $("eduPanel").hidden = true;
+  for (const h of P.honors || []) $("honors").append(el("span", { textContent: h }));
+  if (P.research?.length) $("research").append(...rows(P.research, "title", "note")); else $("resPanel").hidden = true;
+
+  // link grid
+  const links = [{ label: "Email", url: P.email && "mailto:" + P.email }, ...(P.links || [])].filter(l => l.url);
+  for (const l of links) {
+    const a = el("a", { href: l.url, textContent: l.label });
+    if (!l.url.startsWith("mailto:")) { a.target = "_blank"; a.rel = "noopener"; }
+    $("links").append(a);
+  }
+
+  // vCard, built from the config so it never drifts from the page
+  const esc = s => String(s).replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const [first, ...rest] = P.name.split(" ");
+  const vcf = [
+    "BEGIN:VCARD", "VERSION:3.0",
+    `N:${esc(rest.join(" "))};${esc(first)};;;`,
+    `FN:${esc(P.name + (P.nameZh ? ` (${P.nameZh})` : ""))}`,
+    P.affiliation && `ORG:${esc(P.affiliation)}`,
+    P.role && `TITLE:${esc(P.role)}`,
+    P.email && `EMAIL;TYPE=INTERNET:${P.email}`,
+    P.homepage?.url && `URL:${P.homepage.url}`,
+    ...(P.links || []).filter(l => l.url).map(l => `URL;TYPE=${esc(l.label)}:${l.url}`),
+    `NOTE:${esc("Met at " + P.event)}`,
+    "END:VCARD",
+  ].filter(Boolean).join("\r\n");
+  $("save").href = URL.createObjectURL(new Blob([vcf], { type: "text/vcard;charset=utf-8" }));
+  $("save").download = P.name.toLowerCase().replace(/\s+/g, "-") + ".vcf";
+
+  // NFC tags can point to ?via=tap; the "My work" QR adds #<project id>
+  if (new URLSearchParams(location.search).get("via") === "tap")
+    $("via").textContent = "You got here by tapping my phone. Hi 👋";
+  const target = location.hash && document.getElementById(location.hash.slice(1));
+  if (target) setTimeout(() => target.scrollIntoView({ behavior: "smooth", block: "start" }), 400);
+</script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f3f1ec">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Wen Li · Scan me</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+  /* the presenter screen stays light: QR codes scan best dark-on-light */
+  :root { color-scheme: light; }
+  body { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 28px 16px calc(20px + env(safe-area-inset-bottom)); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; padding: 7px 16px; border-radius: 999px;
+    background: var(--chip); font: 600 13px var(--sans); letter-spacing: .08em; text-transform: uppercase;
+  }
+  .pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  h1 { font-size: clamp(34px, 11vw, 46px); margin: 18px 0 6px; }
+  .sub { font-size: 15px; }
+
+  .stage { position: relative; margin: 30px auto 0; width: min(78vw, 340px); aspect-ratio: 1; }
+  .card {
+    position: absolute; inset: 0; border-radius: 22px; background: #fff; padding: 6%;
+    box-shadow: 0 10px 40px -12px rgba(30,30,50,.25), 0 0 0 1px rgba(0,0,0,.04);
+  }
+  #qr, #qr canvas, #qr svg { width: 100% !important; height: 100% !important; display: block; }
+  /* viewfinder corners */
+  .corner { position: absolute; width: 26px; height: 26px; border: 3px solid var(--ink); }
+  .tl { top: -10px; left: -10px; border-right: 0; border-bottom: 0; border-top-left-radius: 10px; }
+  .tr { top: -10px; right: -10px; border-left: 0; border-bottom: 0; border-top-right-radius: 10px; }
+  .bl { bottom: -10px; left: -10px; border-right: 0; border-top: 0; border-bottom-left-radius: 10px; }
+  .br { bottom: -10px; right: -10px; border-left: 0; border-top: 0; border-bottom-right-radius: 10px; }
+  .stage::after {
+    content: ""; position: absolute; inset: -16px; border-radius: 30px; border: 1.5px solid var(--accent);
+    opacity: .35; animation: pulse 2.6s ease-in-out infinite; pointer-events: none;
+  }
+  @keyframes pulse { 50% { opacity: .08; transform: scale(1.02); } }
+  .card.swap { animation: swap .35s ease; }
+  @keyframes swap { 40% { opacity: 0; transform: scale(.96); } }
+  @media (prefers-reduced-motion: reduce) { .stage::after, .card.swap { animation: none; } }
+
+  .hint { margin-top: 40px; }
+  .hint em { font: italic 400 24px var(--serif); display: block; }
+  .hint span { color: var(--muted); font-size: 15px; }
+
+  .tabs {
+    position: relative; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; margin-top: auto;
+    width: min(100%, 340px); padding: 5px; border-radius: 999px; background: var(--chip);
+  }
+  .tabs[data-single] { display: none; }
+  .tabs button {
+    position: relative; z-index: 1; border: 0; background: none; padding: 13px 0;
+    font: 600 15px var(--sans); color: var(--muted); cursor: pointer; transition: color .2s;
+  }
+  .tabs button[aria-selected="true"] { color: var(--bg); }
+  .thumb {
+    position: absolute; top: 5px; bottom: 5px; left: 5px; width: calc((100% - 10px) / var(--n, 2));
+    border-radius: 999px; background: var(--ink); transition: transform .3s cubic-bezier(.3,.7,.3,1);
+  }
+  .thumb { transform: translateX(calc(100% * var(--i, 0))); }
+
+  .meta { display: flex; gap: 22px; align-items: center; margin-top: 26px; font-size: 14px; color: var(--muted); }
+  .meta .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 6px; vertical-align: 1px; }
+  .meta .dot.on { background: #2f9e5b; }
+  .meta button { border: 0; background: none; font: inherit; color: var(--ink); text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+  .spacer { height: 36px; flex: none; }
+</style>
+</head>
+<body>
+  <div class="pill" id="event"></div>
+  <h1 id="name"></h1>
+  <div class="sub" id="sub"></div>
+
+  <div class="stage">
+    <span class="corner tl"></span><span class="corner tr"></span>
+    <span class="corner bl"></span><span class="corner br"></span>
+    <div class="card" id="card"><div id="qr"></div></div>
+  </div>
+
+  <div class="hint">
+    <em>Point your camera here</em>
+    <span id="hintSub">Card, CV &amp; contact in one tap</span>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="tabs" id="tabs" data-tab="card" role="tablist">
+    <span class="thumb"></span>
+    <button role="tab" aria-selected="true" data-tab="card">My card</button>
+    <button role="tab" aria-selected="false" data-tab="paper">My paper</button>
+    <button role="tab" aria-selected="false" data-tab="work">My work</button>
+  </div>
+
+  <div class="meta">
+    <span id="wake"><span class="dot"></span>Screen may dim</span>
+    <button id="fs">Full screen</button>
+  </div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.6.0-rc.1/lib/qr-code-styling.js"></script>
+<script>
+  const P = window.PROFILE, $ = id => document.getElementById(id);
+  $("event").textContent = P.event;
+  $("name").textContent = P.name;
+  $("sub").textContent = [P.nameZh, [P.role, P.affiliation].filter(Boolean).join(" · ")].filter(Boolean).join("  ");
+
+  const targets = {
+    card:  { url: P.cardUrl, hint: "Card, CV & contact in one tap" },
+    work: P.projects?.[0] && { url: P.cardUrl + "#" + P.projects[0].id, hint: P.projects[0].title + " · video" },
+  };
+  if (P.paper) targets.paper = { url: P.cardUrl + "#" + P.paper.id, hint: "Our ISMAR paper · " + (P.paper.shortTitle || P.paper.venue) };
+  const tabs = [...$("tabs").querySelectorAll("button")];
+  for (const b of tabs) if (!targets[b.dataset.tab]) b.remove();
+  const live = tabs.filter(b => targets[b.dataset.tab]);
+  $("tabs").style.setProperty("--n", live.length);
+  if (live.length < 2) $("tabs").dataset.single = "";
+
+  const qr = new QRCodeStyling({
+    width: 600, height: 600, type: "canvas", data: P.cardUrl, margin: 0,
+    qrOptions: { errorCorrectionLevel: "H" },
+    dotsOptions: { type: "dots", color: "#1a1a1f" },
+    cornersSquareOptions: { type: "extra-rounded", color: "#1a1a1f" },
+    cornersDotOptions: { type: "dot", color: "#1a1a1f" },
+    backgroundOptions: { color: "#ffffff" },
+    imageOptions: { margin: 8, imageSize: 0.3, hideBackgroundDots: true, crossOrigin: "anonymous" },
+  });
+  qr.append($("qr"));
+
+  // put the avatar in the middle only once it's known to load (a missing file would blank the code)
+  if (P.photo) {
+    const probe = new Image();
+    probe.onload = () => {
+      // crop to a circle so it sits like a badge in the code
+      const s = 240, c = document.createElement("canvas"); c.width = c.height = s;
+      const x = c.getContext("2d"), m = Math.min(probe.width, probe.height);
+      x.beginPath(); x.arc(s / 2, s / 2, s / 2, 0, Math.PI * 2); x.fillStyle = "#2c55c9"; x.fill();
+      x.save(); x.beginPath(); x.arc(s / 2, s / 2, s / 2 - 8, 0, Math.PI * 2); x.clip();
+      x.drawImage(probe, (probe.width - m) / 2, (probe.height - m) / 2, m, m, 0, 0, s, s); x.restore();
+      qr.update({ image: c.toDataURL("image/png") });
+    };
+    probe.src = P.photo;
+  }
+
+  function show(tab) {
+    const t = targets[tab]; if (!t) return;
+    $("tabs").dataset.tab = tab;
+    $("tabs").style.setProperty("--i", live.findIndex(b => b.dataset.tab === tab));
+    for (const b of $("tabs").querySelectorAll("button")) b.setAttribute("aria-selected", b.dataset.tab === tab);
+    $("hintSub").textContent = t.hint;
+    const card = $("card");
+    card.classList.remove("swap"); void card.offsetWidth; card.classList.add("swap");
+    setTimeout(() => qr.update({ data: t.url }), 140);
+  }
+  $("tabs").addEventListener("click", e => { const b = e.target.closest("button"); if (b) show(b.dataset.tab); });
+
+  // keep the screen on while showing the code
+  let lock = null;
+  async function keepAwake() {
+    try {
+      lock = await navigator.wakeLock.request("screen");
+      $("wake").innerHTML = '<span class="dot on"></span>Screen stays on';
+      lock.addEventListener("release", () => ($("wake").innerHTML = '<span class="dot"></span>Screen may dim'));
+    } catch {}
+  }
+  if ("wakeLock" in navigator) {
+    keepAwake();
+    document.addEventListener("visibilitychange", () => document.visibilityState === "visible" && keepAwake());
+  }
+
+  // full screen (iOS Safari has no Fullscreen API: suggest Add to Home Screen instead)
+  $("fs").onclick = () => {
+    const el = document.documentElement;
+    if (document.fullscreenElement) return document.exitFullscreen();
+    if (el.requestFullscreen) el.requestFullscreen().then(keepAwake).catch(() => {});
+    else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+    else alert("On iPhone: Share → Add to Home Screen, then open it from there for a full-screen view.");
+  };
+</script>
+</body>
+</html>
